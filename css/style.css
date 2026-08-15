@@ -194,3 +194,54 @@ body {
 .btn-close {
     filter: invert(1);
 }
+/* ==========================================
+   CẤU HÌNH IN ẤN (CHỈ IN MÃ QR)
+   ========================================== */
+@media print {
+    /* Ẩn toàn bộ giao diện trang web */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Chỉ hiển thị khu vực Modal QR */
+    #qrModal, #qrModal * {
+        visibility: visible;
+    }
+
+    /* Đưa Modal QR ra giữa trang in */
+    #qrModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    /* Ẩn các nút bấm, nút đóng modal khi in */
+    #qrModal .btn, 
+    #qrModal .btn-close, 
+    #qrModal .modal-header {
+        display: none !important;
+    }
+
+    /* Tối ưu khung thẻ QR khi lên giấy in */
+    #qrModal .modal-content {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    #qrcode {
+        padding: 0 !important;
+        margin: 10px auto !important;
+    }
+
+    #qrUrlText {
+        color: #000 !important;
+        font-weight: bold;
+        font-size: 14px;
+    }
+}

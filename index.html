@@ -146,6 +146,7 @@
     </div>
 
     <!-- MODAL QR CODE -->
+    
     <div class="modal fade" id="qrModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered text-center">
             <div class="modal-content">
@@ -153,10 +154,15 @@
                     <h6 class="modal-title fw-bold">Mã QR Thiết Bị</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="qrcode" class="d-flex justify-content-center p-3 bg-white rounded-3 my-3"></div>
-                    <p class="text-secondary small" id="qrUrlText"></p>
-                    <button class="btn btn-ios-primary w-100 py-2" onclick="window.print()">
+                <div class="modal-body p-4">
+                    <!-- Mã QR và thông tin sẽ in -->
+                    <div id="printArea">
+                        <div id="qrcode" class="d-flex justify-content-center p-3 bg-white rounded-3 mb-2"></div>
+                        <p class="text-secondary small mb-0" id="qrUrlText"></p>
+                    </div>
+
+                    <!-- Nút in (sẽ tự động ẩn khi in) -->
+                    <button class="btn btn-ios-primary w-100 py-2 mt-3" onclick="window.print()">
                         <i class="fa-solid fa-print me-1"></i> In Mã QR
                     </button>
                 </div>
