@@ -1,64 +1,55 @@
+:root {
+    --ios-bg: #000000;
+    --ios-card-bg: #1c1c1e;
+    --ios-card-inner: #2c2c2e;
+    --ios-orange: #ff9f0a;
+    --ios-orange-glow: rgba(255, 159, 10, 0.25);
+    --ios-text-primary: #ffffff;
+    --ios-text-secondary: #8e8e93;
+    --ios-border: #38383a;
+    --ios-green: #30d158;
+    --ios-yellow: #ffd60a;
+    --ios-red: #ff453a;
+}
+
 body {
-    background-color: #f4f6f9;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding-bottom: 75px;
+    background-color: var(--ios-bg);
+    color: var(--ios-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding-bottom: 90px;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* App Container */
 .app-container {
-    max-width: 480px;
+    max-width: 500px;
     margin: 0 auto;
-    background: #ffffff;
-    min-height: 100vh;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
-    position: relative;
+    padding: 0 16px;
 }
 
-/* Bottom Navigation Bar */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    height: 65px;
-    background-color: #ffffff;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.08);
+/* Header Kính Mờ iOS */
+.ios-header {
+    position: sticky;
+    top: 0;
     z-index: 1000;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--ios-border);
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.nav-item {
-    text-align: center;
-    color: #8e8e93;
-    text-decoration: none;
-    font-size: 11px;
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.2s ease;
+.ios-header h6 {
+    color: var(--ios-orange);
+    font-size: 1.1rem;
 }
 
-.nav-item i {
-    font-size: 20px;
-    display: block;
-    margin-bottom: 2px;
-}
-
-.nav-item.active {
-    color: #0d6efd;
-    font-weight: 600;
-}
-
-/* Component Customization */
+/* Tab View Logic */
 .page {
     display: none;
-    padding: 16px;
     animation: fadeIn 0.25s ease-in-out;
 }
 
@@ -67,50 +58,139 @@ body {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.card-machine {
-    border-radius: 14px;
-    border: 1px solid #edf2f7;
-    background: #fff;
+/* Ô Tìm Kiếm iOS */
+.ios-search {
+    background: var(--ios-card-bg);
+    border: 1px solid var(--ios-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.ios-search input {
+    background: transparent;
+    border: none;
+    color: var(--ios-text-primary);
+    width: 100%;
+    outline: none;
+    font-size: 0.95rem;
+}
+
+.ios-search input::placeholder {
+    color: var(--ios-text-secondary);
+}
+
+/* Thẻ Card iOS */
+.ios-card {
+    background: var(--ios-card-bg);
+    border-radius: 16px;
+    border: 0.5px solid var(--ios-border);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Input & Form iOS */
+.form-label {
+    color: var(--ios-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.form-control, .form-select {
+    background-color: var(--ios-card-inner);
+    border: 1px solid var(--ios-border);
+    color: var(--ios-text-primary);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--ios-card-inner);
+    color: var(--ios-text-primary);
+    border-color: var(--ios-orange);
+    box-shadow: 0 0 0 3px var(--ios-orange-glow);
+}
+
+/* Nút Bấm iOS */
+.btn-ios-primary {
+    background: var(--ios-orange);
+    color: #000;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    padding: 12px;
     transition: all 0.2s ease;
 }
 
-.card-machine:active {
+.btn-ios-primary:active {
+    opacity: 0.8;
     transform: scale(0.98);
-    background-color: #f8f9fa;
 }
 
-.img-preview {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
+.btn-ios-secondary {
+    background: var(--ios-card-inner);
+    color: var(--ios-orange);
+    border: 1px solid var(--ios-border);
+    border-radius: 12px;
 }
 
-.timeline-item {
-    border-left: 2px dashed #0d6efd;
-    padding-left: 16px;
-    margin-bottom: 20px;
-    position: relative;
+/* Navigation Thanh Dưới iOS */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-top: 0.5px solid var(--ios-border);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 25px 0;
+    z-index: 1000;
 }
 
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -6px;
-    top: 2px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #0d6efd;
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--ios-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.nav-item i {
+    font-size: 1.3rem;
+    margin-bottom: 3px;
+}
+
+.nav-item.active {
+    color: var(--ios-orange);
+}
+
+/* Modal Dark iOS */
+.modal-content {
+    background-color: var(--ios-card-bg);
+    border: 1px solid var(--ios-border);
+    border-radius: 20px;
+    color: var(--ios-text-primary);
+}
+
+.modal-header {
+    border-bottom: 0.5px solid var(--ios-border);
+}
+
+.btn-close {
+    filter: invert(1);
 }
