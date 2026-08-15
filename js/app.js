@@ -4,7 +4,7 @@ const App = {
     unsubscribeLogs: null,
 
     init() {
-        // 1. Lắng nghe dữ liệu danh sách máy
+        // 1. Lắng nghe dữ liệu danh sách máy từ Firestore
         MachineService.subscribeMachines(machines => {
             this.machinesCache = machines;
             UI.renderMachineList(machines, document.getElementById("searchInput").value);
@@ -13,7 +13,7 @@ const App = {
         // 2. Gán sự kiện cho các Form & Input
         this.bindEvents();
 
-        // 3. Tự động kiểm tra URL xem có quét QR không
+        // 3. Kiểm tra tham số URL (Quét mã QR)
         const urlParams = new URLSearchParams(window.location.search);
         const machineId = urlParams.get('id');
         if (machineId) {
@@ -24,33 +24,28 @@ const App = {
     },
 
     bindEvents() {
-        // Tìm kiếm
+        // Tìm kiếm thiết bị
         document.getElementById("searchInput").addEventListener("keyup", (e) => {
             UI.renderMachineList(this.machinesCache, e.target.value);
         });
 
-        // Form Thêm Máy
+        // Form Thêm Máy (Nhập link ảnh trực tiếp)
         document.getElementById("addMachineForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Đang lưu...`;
 
             try {
                 const code = document.getElementById("addMachineCode").value.trim();
-                const imageFile = document.getElementById("addMachineImage").files[0];
-
-                let imageUrl = "";
-                if (imageFile) {
-                    imageUrl = await MachineService.uploadImage(imageFile, "machines");
-                }
+                const imageUrl = document.getElementById("addMachineImage").value.trim(); // Lấy trực tiếp link ảnh
 
                 await MachineService.addMachine(code, {
                     name: document.getElementById("addMachineName").value.trim(),
                     status: document.getElementById("addMachineStatus").value,
                     location: document.getElementById("addMachineLocation").value.trim(),
                     desc: document.getElementById("addMachineDesc").value.trim(),
-                    imageUrl: imageUrl
+                    imageUrl: imageUrl || ''
                 });
 
                 alert("✅ Thêm máy thành công!");
@@ -60,24 +55,26 @@ const App = {
                 alert("❌ Lỗi: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-1"></i> Lưu máy mới`;
+                btn.innerHTML = `<i class="fa-solid fa-plus me-1"></i> Khởi Tạo Máy Mới`;
             }
         });
 
-        // Form Thêm Nhật Ký (kèm ảnh)
+        // Form Thêm Nhật Ký (Dùng link ảnh đính kèm nếu có)
         document.getElementById("addLogForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tải lên...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Đang lưu...`;
 
             try {
-                const imageFile = document.getElementById("logImage").files[0];
+                const logImageUrl = document.getElementById("logImage").value.trim(); // Lấy link ảnh từ input text
+
                 await MachineService.addLog(this.currentMachineId, {
                     title: document.getElementById("logTitle").value,
                     user: document.getElementById("logUser").value,
-                    content: document.getElementById("logContent").value
-                }, imageFile);
+                    content: document.getElementById("logContent").value,
+                    imageUrl: logImageUrl || ''
+                });
 
                 e.target.reset();
                 bootstrap.Modal.getInstance(document.getElementById('addLogModal')).hide();
@@ -85,7 +82,7 @@ const App = {
                 alert("❌ Lỗi: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `Ghi Nhật Ký`;
+                btn.innerHTML = `Lưu Nhật Ký`;
             }
         });
     },
@@ -97,10 +94,10 @@ const App = {
         const machine = await MachineService.getMachine(id);
         if (!machine) return;
 
-        // Populate dữ liệu
+        // Điền dữ liệu vào giao diện Chi Tiết
         document.getElementById("detailName").innerText = machine.name;
         document.getElementById("detailCode").innerText = machine.id;
-        document.getElementById("detailLocation").innerText = machine.location || 'Chưa rõ';
+        document.getElementById("detailLocation").innerText = machine.location || 'Chưa định vị';
         document.getElementById("detailDesc").innerText = machine.desc || 'Không có mô tả';
 
         const statusEl = document.getElementById("detailStatus");
@@ -114,14 +111,14 @@ const App = {
             document.getElementById("detailImageContainer").classList.add("d-none");
         }
 
-        // Gen QR Code
+        // Tạo Mã QR Code theo URL GitHub Pages
         const qrContainer = document.getElementById("qrcode");
         qrContainer.innerHTML = "";
         const qrUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
         document.getElementById("qrUrlText").innerText = qrUrl;
         new QRCode(qrContainer, { text: qrUrl, width: 160, height: 160 });
 
-        // Lắng nghe Sub-collection Logs
+        // Lắng nghe Sub-collection Logs theo thời gian thực
         if (this.unsubscribeLogs) this.unsubscribeLogs();
         this.unsubscribeLogs = MachineService.subscribeLogs(id, logs => {
             UI.renderLogs(logs);
