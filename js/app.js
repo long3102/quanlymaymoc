@@ -111,10 +111,21 @@ const App = {
             document.getElementById("detailImageContainer").classList.add("d-none");
         }
 
-        // Tạo Mã QR Code theo URL GitHub Pages
+        // 1. Lấy thư mục gốc hiện tại (Xóa 'index.html' nếu có trên URL)
+        let basePath = window.location.pathname;
+        if (basePath.endsWith('index.html')) {
+            basePath = basePath.substring(0, basePath.lastIndexOf('/') + 1);
+        } else if (!basePath.endsWith('/')) {
+            basePath += '/';
+        }
+
+        // 2. Tạo link Mã QR trỏ trực tiếp sang detail.html độc lập
+        const qrUrl = `${window.location.origin}${basePath}detail.html?id=${id}`;
+        this.currentQrUrl = qrUrl; // Lưu lại để dùng cho nút Chia sẻ Zalo
+
+        // 3. Hiển thị link và render Mã QR
         const qrContainer = document.getElementById("qrcode");
         qrContainer.innerHTML = "";
-        const qrUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
         document.getElementById("qrUrlText").innerText = qrUrl;
         new QRCode(qrContainer, { text: qrUrl, width: 160, height: 160 });
 
