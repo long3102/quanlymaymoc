@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Thiết Bị Nhà Máy</title>
+    <title>Quản Lý Thiết Bị & Vật Tư Nhà Máy</title>
+    <!-- Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -12,133 +13,751 @@
 
 <body>
 
-    <!-- STICKY HEADER -->
-    <div class="ios-header mb-3">
-        <h6 class="m-0 fw-bold" id="headerTitle"><i class="fa-solid fa-bolt me-2"></i>Thiết Bị</h6>
-        <button id="btnBack" class="btn btn-sm btn-ios-secondary d-none" onclick="UI.showPage('page-home')">
-            <i class="fa-solid fa-chevron-left me-1"></i> Trở về
-        </button>
-    </div>
-
     <div class="app-container">
-
-        <!-- 1. HOME PAGE -->
-        <div id="page-home" class="page active">
-            <div class="ios-search">
-                <i class="fa-solid fa-magnifying-glass text-secondary"></i>
-                <input type="text" id="searchInput" placeholder="Tìm tên, mã thiết bị...">
+        <!-- HEADER -->
+        <div class="bg-primary text-white p-3 sticky-top shadow-sm d-flex justify-content-between align-items-center header-bar">
+            <div class="d-flex align-items-center">
+                <button id="btnBack" class="btn btn-sm btn-light me-2 d-none" onclick="UI.showPreviousPage()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h6 class="m-0 fw-bold" id="headerTitle"><i class="fa-solid fa-industry me-2"></i>Quản Lý Thiết Bị</h6>
             </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button id="btnHeaderAlerts" class="btn btn-sm btn-light position-relative" onclick="UI.showPage('page-alerts')">
+                    <i class="fa-solid fa-bell text-warning"></i>
+                    <span id="badgeAlertCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                </button>
+                <div id="userInfoHeader" class="d-none dropdown">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user-gear me-1"></i> <span id="lblUserPhone">0932891763</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><span class="dropdown-item-text small text-muted">Quyền: Quản trị nhà máy</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger small" href="#" onclick="App.logout()"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 0. LOGIN PAGE -->
+        <div id="page-login" class="page">
+            <div class="text-center my-4">
+                <div class="bg-primary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 70px; height: 70px;">
+                    <i class="fa-solid fa-industry fa-2x"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Quản Lý Nhà Máy</h4>
+                <p class="text-muted small">Hệ thống quản lý thiết bị, vật tư & kiểm kê số hóa</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Số điện thoại đăng nhập</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                            <input type="tel" class="form-control border-start-0" id="loginPhone" value="0932891763" placeholder="0932891763" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0" id="loginPass" value="123123" placeholder="123123" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 rounded-3 fw-bold shadow-sm">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Đăng Nhập Quản Lý
+                    </button>
+                </form>
+            </div>
+            
+            <div class="text-center text-muted x-small">
+                <i class="fa-solid fa-shield-halved me-1 text-success"></i> Quét mã QR thiết bị có thể xem thông tin trực tiếp mà không cần đăng nhập.
+            </div>
+        </div>
+
+        <!-- 1. DASHBOARD PAGE -->
+        <div id="page-dashboard" class="page">
+            <div id="guestBanner" class="alert alert-info py-2 px-3 small d-flex justify-content-between align-items-center mb-3 rounded-3 d-none">
+                <span><i class="fa-solid fa-circle-info me-1"></i> Đang ở chế độ xem Khách</span>
+                <button class="btn btn-sm btn-primary py-0 px-2 small" onclick="UI.showPage('page-login')">Đăng nhập</button>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="row g-2 mb-3">
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-primary text-white p-3 rounded-3 shadow-sm h-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white-50 x-small text-uppercase fw-bold">Tổng thiết bị</div>
+                                <h3 class="fw-bold mb-0" id="statTotalMachines">0</h3>
+                            </div>
+                            <i class="fa-solid fa-gears fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-success text-white p-3 rounded-3 shadow-sm h-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white-50 x-small text-uppercase fw-bold">Đang hoạt động</div>
+                                <h3 class="fw-bold mb-0" id="statActiveMachines">0</h3>
+                            </div>
+                            <i class="fa-solid fa-circle-check fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-warning text-dark p-3 rounded-3 shadow-sm h-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-dark-50 x-small text-uppercase fw-bold">Cần bảo trì / hỏng</div>
+                                <h3 class="fw-bold mb-0" id="statIssueMachines">0</h3>
+                            </div>
+                            <i class="fa-solid fa-triangle-exclamation fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-info text-white p-3 rounded-3 shadow-sm h-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white-50 x-small text-uppercase fw-bold">Vật tư tồn kho</div>
+                                <h3 class="fw-bold mb-0" id="statTotalMaterials">0</h3>
+                            </div>
+                            <i class="fa-solid fa-boxes-stacked fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary Card -->
+            <div class="card border-0 shadow-sm rounded-3 p-3 mb-3 bg-gradient-dark text-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small opacity-75 fw-semibold"><i class="fa-solid fa-coins me-1"></i> Giá trị tài sản & Khấu hao</span>
+                    <span class="badge bg-white text-dark rounded-pill x-small">Toàn nhà máy</span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6 border-end border-secondary">
+                        <div class="x-small opacity-75">Tổng nguyên giá tài sản</div>
+                        <h6 class="fw-bold text-warning mb-0" id="statTotalValue">0 VNĐ</h6>
+                    </div>
+                    <div class="col-6 ps-3">
+                        <div class="x-small opacity-75">Khấu hao tháng này</div>
+                        <h6 class="fw-bold text-info mb-0" id="statMonthlyDepreciation">0 VNĐ</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Grid -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold m-0 text-dark small text-uppercase"><i class="fa-solid fa-bolt text-warning me-1"></i> Thao tác nhanh</h6>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-4">
+                    <button class="btn btn-outline-primary w-100 py-2.5 rounded-3 d-flex flex-column align-items-center justify-content-center shadow-xs h-100" onclick="App.openAddMachineForm()">
+                        <i class="fa-solid fa-plus-circle fa-lg mb-1"></i>
+                        <span class="x-small fw-bold">Thêm thiết bị</span>
+                    </button>
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-outline-success w-100 py-2.5 rounded-3 d-flex flex-column align-items-center justify-content-center shadow-xs h-100" onclick="UI.showPage('page-audit')">
+                        <i class="fa-solid fa-clipboard-check fa-lg mb-1"></i>
+                        <span class="x-small fw-bold">Kiểm kê số</span>
+                    </button>
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-outline-purple w-100 py-2.5 rounded-3 d-flex flex-column align-items-center justify-content-center shadow-xs h-100" onclick="UI.showPage('page-materials')">
+                        <i class="fa-solid fa-box-open fa-lg mb-1"></i>
+                        <span class="x-small fw-bold">Quản lý vật tư</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Urgent Alerts -->
+            <div class="card border-0 shadow-sm rounded-3 p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold m-0 text-dark small"><i class="fa-solid fa-bell text-danger me-1"></i> Cảnh báo cần chú ý</h6>
+                    <a href="#" class="x-small text-primary text-decoration-none fw-bold" onclick="UI.showPage('page-alerts')">Xem tất cả <i class="fa-solid fa-chevron-right ms-1"></i></a>
+                </div>
+                <div id="dashboardAlertList">
+                    <p class="text-muted x-small mb-0">Không có cảnh báo mới.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MACHINES PAGE -->
+        <div id="page-machines" class="page">
+            <div class="input-group mb-2 shadow-sm rounded-3">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Tìm theo mã, tên, phòng ban...">
+            </div>
+
+            <div class="d-flex gap-1 mb-3 overflow-auto pb-1" id="deptFilterContainer">
+                <button class="btn btn-sm btn-primary filter-dept-btn active" data-dept="ALL">Tất cả</button>
+                <!-- Dynamic department filters inserted here -->
+            </div>
+
             <div id="machineList"></div>
         </div>
 
-        <!-- 2. ADD PAGE -->
-        <div id="page-add" class="page">
-            <div class="ios-card">
-                <form id="addMachineForm">
-                    <div class="mb-3">
-                        <label class="form-label">Link hình ảnh thiết bị</label>
-                        <input type="text" class="form-control" id="addMachineImage" placeholder="Dán link ảnh (VD: https://i.imgur.com/xyz.jpg)">
+        <!-- 3. ADD / EDIT MACHINE PAGE -->
+        <div id="page-add-edit" class="page">
+            <div class="card border-0 shadow-sm rounded-3 p-3">
+                <h6 class="fw-bold mb-3 text-primary" id="formTitle"><i class="fa-solid fa-plus-circle me-1"></i> Thêm Thiết Bị Mới</h6>
+                
+                <form id="machineForm">
+                    <input type="hidden" id="formIsEdit" value="false">
+                    
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold x-small text-muted mb-1">Mã QR / Mã Thiết Bị (*)</label>
+                        <input type="text" class="form-control form-control-sm" id="formMachineCode" placeholder="VD: MAY_DONG_DAI_01" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mã Máy / Mã QR (*)</label>
-                        <input type="text" class="form-control" id="addMachineCode" placeholder="VD: MAY_DONG_DAI_01" required>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold x-small text-muted mb-1">Tên thiết bị (*)</label>
+                        <input type="text" class="form-control form-control-sm" id="formMachineName" placeholder="VD: Máy đóng đai tự động" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tên thiết bị (*)</label>
-                        <input type="text" class="form-control" id="addMachineName" placeholder="VD: Máy đóng đai" required>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold x-small text-muted mb-1">Trạng thái</label>
+                            <select class="form-select form-select-sm" id="formMachineStatus">
+                                <option value="Hoạt động">🟢 Hoạt động tốt</option>
+                                <option value="Cần bảo trì">🟡 Cần bảo trì</option>
+                                <option value="Hư hỏng">🔴 Đang hỏng</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold x-small text-muted mb-1">Phòng ban sử dụng (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="formMachineDept" placeholder="VD: Xưởng SX 1" list="deptSuggestions" required>
+                            <datalist id="deptSuggestions">
+                                <option value="Xưởng Sản Xuất 1"></option>
+                                <option value="Xưởng Sản Xuất 2"></option>
+                                <option value="Xưởng Đóng Gói"></option>
+                                <option value="Bộ Phận Cơ Điện"></option>
+                                <option value="Kho Vận"></option>
+                            </datalist>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Trạng thái vận hành</label>
-                        <select class="form-select" id="addMachineStatus">
-                            <option value="Hoạt động">🟢 Hoạt động tốt</option>
-                            <option value="Cần bảo trì">🟡 Cần bảo trì</option>
-                            <option value="Hư hỏng">🔴 Đang hỏng</option>
-                        </select>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold x-small text-muted mb-1">Vị trí cụ thể</label>
+                            <input type="text" class="form-control form-control-sm" id="formMachineLocation" placeholder="VD: Dây chuyền A2">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold x-small text-muted mb-1">Người quản lý (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="formMachineManager" placeholder="VD: Nguyễn Văn A" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Vị trí lắp đặt</label>
-                        <input type="text" class="form-control" id="addMachineLocation" placeholder="VD: Xưởng A">
+
+                    <!-- Financial & Depreciation -->
+                    <div class="p-2 bg-light rounded-3 mb-2 border">
+                        <div class="fw-bold x-small text-dark mb-1"><i class="fa-solid fa-calculator text-primary me-1"></i> Nguyên Giá & Khấu Hao Tài Sản</div>
+                        <div class="row g-2 mb-1">
+                            <div class="col-6">
+                                <label class="form-label x-small text-muted mb-0">Ngày đưa vào sử dụng</label>
+                                <input type="date" class="form-control form-control-sm" id="formMachineStartDate">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small text-muted mb-0">Số năm khấu hao</label>
+                                <input type="number" min="1" max="50" class="form-control form-control-sm" id="formMachineDepYears" placeholder="VD: 5">
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label x-small text-muted mb-0">Giá tiền / Nguyên giá (VNĐ)</label>
+                            <input type="number" min="0" step="100000" class="form-control form-control-sm" id="formMachinePrice" placeholder="VD: 150000000">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mô tả kỹ thuật</label>
-                        <textarea class="form-control" id="addMachineDesc" rows="3"></textarea>
+
+                    <!-- Maintenance Schedule -->
+                    <div class="p-2 bg-light rounded-3 mb-2 border">
+                        <div class="fw-bold x-small text-dark mb-1"><i class="fa-solid fa-wrench text-warning me-1"></i> Lịch Bảo Dưỡng Định Kỳ</div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label x-small text-muted mb-0">Chu kỳ bảo dưỡng</label>
+                                <select class="form-select form-select-sm" id="formMachineMaintCycle">
+                                    <option value="30">1 Tháng (30 ngày)</option>
+                                    <option value="60">2 Tháng (60 ngày)</option>
+                                    <option value="90" selected>3 Tháng (90 ngày)</option>
+                                    <option value="180">6 Tháng (180 ngày)</option>
+                                    <option value="365">1 Năm (365 ngày)</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small text-muted mb-0">Ngày bảo dưỡng kế tiếp</label>
+                                <input type="date" class="form-control form-control-sm" id="formMachineNextMaint">
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-ios-primary w-100 py-3 mt-2">
-                        <i class="fa-solid fa-plus me-1"></i> Khởi Tạo Máy Mới
-                    </button>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold x-small text-muted mb-1">Hình ảnh đính kèm</label>
+                        <input type="file" class="form-control form-control-sm" id="formMachineImage" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold x-small text-muted mb-1">Mô tả kỹ thuật / Ghi chú</label>
+                        <textarea class="form-control form-control-sm" id="formMachineDesc" rows="2"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-light w-50 py-2" onclick="UI.showPreviousPage()">Hủy</button>
+                        <button type="submit" class="btn btn-sm btn-primary w-50 py-2 fw-bold shadow-sm" id="btnSaveMachine">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Lưu Thiết Bị
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <!-- 3. DETAIL PAGE -->
+        <!-- 4. DETAIL PAGE -->
         <div id="page-detail" class="page">
-            <div class="ios-card mb-3">
-                <div id="detailImageContainer" class="d-none mb-3">
-                    <img id="detailImage" src="" class="w-100 rounded-3" style="height: 200px; object-fit: cover;">
+            <div class="card border-0 bg-white mb-3 shadow-sm rounded-3 overflow-hidden">
+                <div id="detailImageContainer" class="d-none position-relative">
+                    <img id="detailImage" src="" class="card-img-top" style="height: 200px; object-fit: cover;">
                 </div>
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5 class="fw-bold m-0" id="detailName">---</h5>
-                    <span id="detailStatus" class="badge bg-success">---</span>
-                </div>
-                <div class="text-secondary small mb-1">Mã: <strong class="text-light" id="detailCode">---</strong></div>
-                <div class="text-secondary small mb-1">Vị trí: <span class="text-light" id="detailLocation">---</span></div>
-                <div class="text-secondary small mb-3">Mô tả: <span class="text-light" id="detailDesc">---</span></div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="fw-bold m-0 text-dark" id="detailName">---</h5>
+                            <span class="text-muted small">Mã: <strong id="detailCode">---</strong></span>
+                        </div>
+                        <span id="detailStatus" class="badge bg-success">---</span>
+                    </div>
 
-                <button class="btn btn-ios-secondary w-100 py-2" data-bs-toggle="modal" data-bs-target="#qrModal">
-                    <i class="fa-solid fa-qrcode me-2"></i> Xuất Mã QR Đổi Mã In
+                    <!-- Quick info grid -->
+                    <div class="row g-2 mb-3 bg-light p-2 rounded-3 border x-small">
+                        <div class="col-6">
+                            <div class="text-muted"><i class="fa-solid fa-building me-1 text-primary"></i>Phòng ban:</div>
+                            <strong id="detailDept" class="text-dark">---</strong>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i>Vị trí:</div>
+                            <span id="detailLocation" class="text-dark">---</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted"><i class="fa-solid fa-user me-1 text-info"></i>Người quản lý:</div>
+                            <strong id="detailManager" class="text-dark">---</strong>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted"><i class="fa-solid fa-wrench me-1 text-warning"></i>Bảo dưỡng kế tiếp:</div>
+                            <span id="detailNextMaint" class="fw-bold">---</span>
+                        </div>
+                    </div>
+
+                    <!-- Financial & Depreciation Box -->
+                    <div class="card border-primary border-opacity-25 bg-primary bg-opacity-10 p-2.5 rounded-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="x-small fw-bold text-primary"><i class="fa-solid fa-calculator me-1"></i> Giá Trị & Khấu Hao Tài Sản</span>
+                            <span id="detailDepBadge" class="badge bg-primary">---</span>
+                        </div>
+                        <div class="row g-2 x-small text-dark mb-2">
+                            <div class="col-6">
+                                <span class="text-muted">Nguyên giá:</span> <strong id="detailPrice">0 VNĐ</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted">Khấu hao/tháng:</span> <strong id="detailMonthlyDep">0 VNĐ</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted">Ngày sử dụng:</span> <span id="detailStartDate">---</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted">Hết khấu hao:</span> <span id="detailDepEndDate">---</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center x-small mb-1">
+                            <span class="text-muted">Giá trị còn lại: <strong id="detailRemainingValue" class="text-success">0 VNĐ</strong></span>
+                            <span id="detailDepPercent" class="fw-bold text-primary">0%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div id="detailDepProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tech Desc -->
+                    <div class="text-muted x-small mb-3">
+                        <strong>Mô tả kỹ thuật:</strong> <span id="detailDesc">Không có</span>
+                    </div>
+
+                    <!-- Action toolbar -->
+                    <div class="row g-1 mb-2">
+                        <div class="col-3">
+                            <button class="btn btn-sm btn-outline-primary w-100 py-1.5" onclick="App.openEditMachineForm()">
+                                <i class="fa-solid fa-pen-to-square"></i> <span class="d-block x-small">Sửa</span>
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-sm btn-outline-info w-100 py-1.5" data-bs-toggle="modal" data-bs-target="#transferModal">
+                                <i class="fa-solid fa-right-left"></i> <span class="d-block x-small">Luân chuyển</span>
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-sm btn-outline-success w-100 py-1.5" data-bs-toggle="modal" data-bs-target="#addLogModal">
+                                <i class="fa-solid fa-file-pen"></i> <span class="d-block x-small">Nhật ký</span>
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-sm btn-outline-dark w-100 py-1.5" data-bs-toggle="modal" data-bs-target="#qrModal">
+                                <i class="fa-solid fa-qrcode"></i> <span class="d-block x-small">Mã QR</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs: Logs vs Transfers -->
+            <ul class="nav nav-tabs nav-fill mb-3 bg-white rounded-3 shadow-sm border-0 p-1" id="detailTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-item-btn active small py-1.5 w-100 border-0 rounded-2" id="logs-tab" data-bs-toggle="tab" data-bs-target="#tab-logs">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Nhật ký vận hành
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-item-btn small py-1.5 w-100 border-0 rounded-2" id="transfers-tab" data-bs-toggle="tab" data-bs-target="#tab-transfers">
+                        <i class="fa-solid fa-truck-ramp-box me-1"></i> Luân chuyển
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="detailTabsContent">
+                <div class="tab-pane fade show active" id="tab-logs">
+                    <div id="logsContainer"></div>
+                </div>
+                <div class="tab-pane fade" id="tab-transfers">
+                    <div id="transfersContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. MATERIALS PAGE -->
+        <div id="page-materials" class="page">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-boxes-stacked me-1 text-primary"></i> Quản Lý Vật Tư & Phụ Tùng</h6>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#materialModal">
+                    <i class="fa-solid fa-plus me-1"></i> Thêm Vật Tư
                 </button>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h6 class="fw-bold m-0 text-secondary"><i class="fa-solid fa-clock-rotate-left me-1"></i> Nhật Ký Bảo Trì</h6>
-                <button class="btn btn-sm btn-ios-primary" data-bs-toggle="modal" data-bs-target="#addLogModal">
-                    <i class="fa-solid fa-plus me-1"></i> Ghi Nhật Ký
-                </button>
+            <div class="input-group mb-3 shadow-sm rounded-3">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="searchMaterialInput" class="form-control border-start-0" placeholder="Tìm tên, mã vật tư, vị trí kho...">
             </div>
 
-            <div id="logsContainer"></div>
+            <div id="materialList"></div>
+        </div>
+
+        <!-- 6. INVENTORY AUDIT PAGE -->
+        <div id="page-audit" class="page">
+            <div id="auditMainView">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-clipboard-check me-1 text-success"></i> Kiểm Kê Tài Sản Số Hóa</h6>
+                    <button class="btn btn-sm btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#createAuditModal">
+                        <i class="fa-solid fa-plus me-1"></i> Tạo Đợt Kiểm Kê
+                    </button>
+                </div>
+                
+                <div class="alert alert-success border-0 shadow-sm py-2 px-3 small rounded-3 mb-3">
+                    <i class="fa-solid fa-lightbulb me-1"></i> Không cần in giấy! Đánh dấu nhanh trạng thái thiết bị thực tế ngay trên điện thoại.
+                </div>
+
+                <div id="auditList"></div>
+            </div>
+
+            <!-- Active Audit Execution View -->
+            <div id="auditActiveView" class="d-none">
+                <div class="card border-0 shadow-sm rounded-3 p-3 mb-3 bg-gradient-primary text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-white text-primary x-small mb-1" id="activeAuditStatus">Đang thực hiện</span>
+                            <h5 class="fw-bold mb-0 text-white" id="activeAuditTitle">---</h5>
+                            <div class="x-small opacity-75" id="activeAuditDept">---</div>
+                        </div>
+                        <button class="btn btn-sm btn-light py-1 px-2" onclick="UI.closeActiveAuditView()">
+                            <i class="fa-solid fa-xmark"></i> Đóng
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center x-small mb-1">
+                        <span>Tiến độ kiểm kê: <strong id="activeAuditProgressText">0/0 thiết bị</strong></span>
+                        <strong id="activeAuditPercent">0%</strong>
+                    </div>
+                    <div class="progress bg-white bg-opacity-25" style="height: 8px;">
+                        <div id="activeAuditProgressBar" class="progress-bar bg-warning" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Status Filter Pills for Audit -->
+                <div class="d-flex gap-1 mb-3 overflow-auto pb-1" id="auditItemFilterContainer">
+                    <button class="btn btn-sm btn-dark audit-item-filter active" data-filter="ALL">Tất cả</button>
+                    <button class="btn btn-sm btn-outline-secondary audit-item-filter" data-filter="UNCHECKED">Chưa kiểm</button>
+                    <button class="btn btn-sm btn-outline-success audit-item-filter" data-filter="Khớp">🟢 Khớp</button>
+                    <button class="btn btn-sm btn-outline-warning audit-item-filter" data-filter="Lệch vị trí">🟡 Lệch</button>
+                    <button class="btn btn-sm btn-outline-danger audit-item-filter" data-filter="Thất thoát">🔴 Thiếu</button>
+                    <button class="btn btn-sm btn-outline-orange audit-item-filter" data-filter="Hư hỏng">🟠 Hỏng</button>
+                </div>
+
+                <div id="auditItemsList" class="mb-4"></div>
+
+                <div class="sticky-bottom bg-white p-2 border-top shadow-lg rounded-3">
+                    <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" onclick="App.completeCurrentAudit()">
+                        <i class="fa-solid fa-check-double me-1"></i> Hoàn Thành & Khóa Đợt Kiểm Kê
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. ALERTS PAGE -->
+        <div id="page-alerts" class="page">
+            <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Trung Tâm Cảnh Báo</h6>
+            
+            <ul class="nav nav-pills nav-fill mb-3 bg-white p-1 rounded-3 shadow-sm border" id="alertTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active small py-1.5" id="alert-maint-tab" data-bs-toggle="tab" data-bs-target="#tab-alert-maint">
+                        Bảo Dưỡng <span id="badgeAlertMaintCount" class="badge bg-danger ms-1">0</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link small py-1.5" id="alert-dep-tab" data-bs-toggle="tab" data-bs-target="#tab-alert-dep">
+                        Khấu Hao <span id="badgeAlertDepCount" class="badge bg-warning text-dark ms-1">0</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link small py-1.5" id="alert-stock-tab" data-bs-toggle="tab" data-bs-target="#tab-alert-stock">
+                        Vật Tư Low <span id="badgeAlertStockCount" class="badge bg-info ms-1">0</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="alertTabsContent">
+                <div class="tab-pane fade show active" id="tab-alert-maint">
+                    <div id="alertMaintList"></div>
+                </div>
+                <div class="tab-pane fade" id="tab-alert-dep">
+                    <div id="alertDepList"></div>
+                </div>
+                <div class="tab-pane fade" id="tab-alert-stock">
+                    <div id="alertStockList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- BOTTOM TAB BAR -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="UI.showPage('page-home')">
-            <i class="fa-solid fa-cubes"></i>
+        <div class="nav-item active" onclick="UI.showPage('page-dashboard')">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Tổng quan</span>
+        </div>
+        <div class="nav-item" onclick="UI.showPage('page-machines')">
+            <i class="fa-solid fa-gears"></i>
             <span>Thiết bị</span>
         </div>
-        <div class="nav-item" onclick="UI.showPage('page-add')">
-            <i class="fa-solid fa-square-plus"></i>
-            <span>Thêm mới</span>
+        <div class="nav-item" onclick="UI.showPage('page-materials')">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Vật tư</span>
+        </div>
+        <div class="nav-item" onclick="UI.showPage('page-audit')">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span>Kiểm kê</span>
+        </div>
+        <div class="nav-item" onclick="UI.showPage('page-alerts')">
+            <i class="fa-solid fa-bell"></i>
+            <span>Cảnh báo</span>
         </div>
     </div>
 
     <!-- MODAL ADD LOG -->
     <div class="modal fade" id="addLogModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title fw-bold">Ghi Nhật Ký Sự Cố / Bảo Trì</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-file-pen me-1"></i> Ghi Nhật Ký Sự Cố / Bảo Trì</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addLogForm">
-                        <div class="mb-3">
-                            <label class="form-label">Tiêu đề sự cố / thao tác</label>
-                            <input type="text" class="form-control" id="logTitle" placeholder="VD: Thay dây curoa" required>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Tiêu đề sự cố / thao tác (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="logTitle" placeholder="VD: Thay dây curoa, Bảo dưỡng định kỳ" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Người ghi (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="logUser" value="Kỹ thuật viên" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Ảnh đính kèm (nếu có)</label>
+                            <input type="file" class="form-control form-control-sm" id="logImage" accept="image/*">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Người ghi</label>
-                            <input type="text" class="form-control" id="logUser" value="Thủ kho" required>
+                            <label class="form-label x-small fw-bold">Nội dung chi tiết (*)</label>
+                            <textarea class="form-control form-control-sm" id="logContent" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Lưu Nhật Ký</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TRANSFER ASSET -->
+    <div class="modal fade" id="transferModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-info text-white">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-right-left me-1"></i> Khai Báo Luân Chuyển Tài Sản</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transferForm">
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Đến Phòng Ban Mới (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="transferToDept" placeholder="VD: Xưởng Đóng Gói" list="deptSuggestions" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Đến Vị Trí Mới (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="transferToLocation" placeholder="VD: Dây chuyền B1" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Người Tiếp Nhận Quản Lý</label>
+                            <input type="text" class="form-control form-control-sm" id="transferToManager" placeholder="VD: Trần Văn B">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Ngày Luân Chuyển (*)</label>
+                            <input type="date" class="form-control form-control-sm" id="transferDate" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Ảnh đính kèm</label>
-                            <input type="file" class="form-control" id="logImage" accept="image/*">
+                            <label class="form-label x-small fw-bold">Lý Do Luân Chuyển</label>
+                            <textarea class="form-control form-control-sm" id="transferReason" rows="2" placeholder="VD: Điều chuyển tăng cường tiến độ sản xuất"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-info text-white w-100 py-2 fw-bold">Xác Nhận Luân Chuyển</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MATERIAL -->
+    <div class="modal fade" id="materialModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-box-open me-1"></i> Thêm Vật Tư / Phụ Tùng Mới</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="materialForm">
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Mã Vật Tư / Phụ Tùng (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="matCode" placeholder="VD: VT_CUROA_B52" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Tên Vật Tư / Phụ Tùng (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="matName" placeholder="VD: Dây Curoa B52" required>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold">Đơn Vị Tính (*)</label>
+                                <input type="text" class="form-control form-control-sm" id="matUnit" placeholder="Sợi, Cái, Bộ, Kg..." required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold">Vị Trí Lưu Kho</label>
+                                <input type="text" class="form-control form-control-sm" id="matLocation" placeholder="VD: Kệ A-02">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold">Số Lượng Tồn Ban Đầu</label>
+                                <input type="number" min="0" class="form-control form-control-sm" id="matQty" value="10" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold">Ngưỡng Báo Đỏ (Min)</label>
+                                <input type="number" min="1" class="form-control form-control-sm" id="matMin" value="3" required>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Nội dung chi tiết</label>
-                            <textarea class="form-control" id="logContent" rows="3" required></textarea>
+                            <label class="form-label x-small fw-bold">Đơn Giá Tham Khảo (VNĐ)</label>
+                            <input type="number" min="0" step="1000" class="form-control form-control-sm" id="matPrice" placeholder="VD: 150000">
                         </div>
-                        <button type="submit" class="btn btn-ios-primary w-100 py-2">Lưu Nhật Ký</button>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Lưu Vật Tư Mới</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL STOCK IN/OUT -->
+    <div class="modal fade" id="stockModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header text-white" id="stockModalHeader">
+                    <h6 class="modal-title fw-bold" id="stockModalTitle">Nhập / Xuất Kho</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="stockForm">
+                        <input type="hidden" id="stockMatId">
+                        <input type="hidden" id="stockType" value="import">
+                        
+                        <div class="mb-2 bg-light p-2 rounded-3 text-center">
+                            <div class="x-small text-muted">Vật tư: <strong id="stockMatName" class="text-dark">---</strong></div>
+                            <div class="small fw-bold">Tồn hiện tại: <span id="stockCurrentQty" class="text-primary">0</span></div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Số Lượng Thay Đổi (*)</label>
+                            <input type="number" min="1" class="form-control form-control-sm" id="stockQty" placeholder="Nhập số lượng" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Người Thực Hiện (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="stockUser" value="Thủ kho" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold">Ghi Chú / Lý Do</label>
+                            <input type="text" class="form-control form-control-sm" id="stockNote" placeholder="VD: Thay cho máy MAY_01">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnStockSubmit">Xác Nhận</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREATE AUDIT -->
+    <div class="modal fade" id="createAuditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-clipboard-check me-1"></i> Tạo Đợt Kiểm Kê Mới</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAuditForm">
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Tên Đợt Kiểm Kê (*)</label>
+                            <input type="text" class="form-control form-control-sm" id="auditTitle" placeholder="VD: Kiểm Kê Q3/2026 Xưởng A" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label x-small fw-bold">Phạm Vi Kiểm Kê (*)</label>
+                            <select class="form-select form-select-sm" id="auditDepartment">
+                                <option value="ALL">Tất Cả Phòng Ban / Toàn Nhà Máy</option>
+                                <option value="Xưởng Sản Xuất 1">Xưởng Sản Xuất 1</option>
+                                <option value="Xưởng Sản Xuất 2">Xưởng Sản Xuất 2</option>
+                                <option value="Xưởng Đóng Gói">Xưởng Đóng Gói</option>
+                                <option value="Bộ Phận Cơ Điện">Bộ Phận Cơ Điện</option>
+                                <option value="Kho Vận">Kho Vận</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold">Người Phụ Trách Kiểm Kê</label>
+                            <input type="text" class="form-control form-control-sm" id="auditCreatedBy" value="Trưởng ban kiểm kê">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Tạo & Bắt Đầu Kiểm Kê</button>
                     </form>
                 </div>
             </div>
@@ -146,23 +765,17 @@
     </div>
 
     <!-- MODAL QR CODE -->
-    
     <div class="modal fade" id="qrModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered text-center">
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow">
                 <div class="modal-header">
                     <h6 class="modal-title fw-bold">Mã QR Thiết Bị</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <!-- Mã QR và thông tin sẽ in -->
-                    <div id="printArea">
-                        <div id="qrcode" class="d-flex justify-content-center p-3 bg-white rounded-3 mb-2"></div>
-                        <p class="text-secondary small mb-0" id="qrUrlText"></p>
-                    </div>
-
-                    <!-- Nút in (sẽ tự động ẩn khi in) -->
-                    <button class="btn btn-ios-primary w-100 py-2 mt-3" onclick="window.print()">
+                <div class="modal-body">
+                    <div id="qrcode" class="d-flex justify-content-center my-3"></div>
+                    <p class="text-muted small" id="qrUrlText"></p>
+                    <button class="btn btn-primary w-100" onclick="window.print()">
                         <i class="fa-solid fa-print me-1"></i> In Mã QR
                     </button>
                 </div>
@@ -170,7 +783,7 @@
         </div>
     </div>
 
-    <!-- Scripts CDN -->
+    <!-- External JS Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

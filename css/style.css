@@ -1,55 +1,130 @@
 :root {
-    --ios-bg: #000000;
-    --ios-card-bg: #1c1c1e;
-    --ios-card-inner: #2c2c2e;
-    --ios-orange: #ff9f0a;
-    --ios-orange-glow: rgba(255, 159, 10, 0.25);
-    --ios-text-primary: #ffffff;
-    --ios-text-secondary: #8e8e93;
-    --ios-border: #38383a;
-    --ios-green: #30d158;
-    --ios-yellow: #ffd60a;
-    --ios-red: #ff453a;
+    --primary-color: #0d6efd;
+    --primary-hover: #0b5ed7;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #0dcaf0;
+    --purple-color: #6f42c1;
+    --orange-color: #fd7e14;
+    --bg-main: #f4f6f9;
 }
 
 body {
-    background-color: var(--ios-bg);
-    color: var(--ios-text-primary);
+    background-color: #eef2f5;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding-bottom: 90px;
+    padding-bottom: 75px;
     -webkit-tap-highlight-color: transparent;
+    color: #212529;
 }
 
+/* App Container */
 .app-container {
-    max-width: 500px;
+    max-width: 520px;
     margin: 0 auto;
-    padding: 0 16px;
+    background: #ffffff;
+    min-height: 100vh;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.08);
+    position: relative;
 }
 
-/* Header Kính Mờ iOS */
-.ios-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 0.5px solid var(--ios-border);
-    padding: 16px;
+/* Responsive adjustment for larger screens */
+@media (min-width: 768px) {
+    .app-container {
+        margin-top: 15px;
+        margin-bottom: 20px;
+        border-radius: 16px;
+        overflow: hidden;
+        min-height: calc(100vh - 35px);
+    }
+}
+
+/* Utility Helpers */
+.x-small {
+    font-size: 11px;
+}
+
+.shadow-xs {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.btn-outline-purple {
+    color: var(--purple-color);
+    border-color: var(--purple-color);
+}
+.btn-outline-purple:hover, .btn-outline-purple:active {
+    background-color: var(--purple-color);
+    color: #fff;
+}
+
+.btn-outline-orange {
+    color: var(--orange-color);
+    border-color: var(--orange-color);
+}
+.btn-outline-orange:hover, .btn-outline-orange:active {
+    background-color: var(--orange-color);
+    color: #fff;
+}
+
+/* Header */
+.header-bar {
+    z-index: 1020;
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 520px;
+    height: 65px;
+    background-color: #ffffff;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
+    box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-top: 1px solid #edf2f7;
 }
 
-.ios-header h6 {
-    color: var(--ios-orange);
-    font-size: 1.1rem;
+.nav-item {
+    text-align: center;
+    color: #8e8e93;
+    text-decoration: none;
+    font-size: 11px;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+    padding: 6px 0;
 }
 
-/* Tab View Logic */
+.nav-item i {
+    font-size: 19px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.nav-item.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Pages & Transitions */
 .page {
     display: none;
+    padding: 14px;
     animation: fadeIn 0.25s ease-in-out;
 }
 
@@ -58,190 +133,149 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Ô Tìm Kiếm iOS */
-.ios-search {
-    background: var(--ios-card-bg);
-    border: 1px solid var(--ios-border);
-    border-radius: 12px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 16px 0;
+/* Cards & Machine Item */
+.card-machine {
+    border-radius: 14px;
+    border: 1px solid #edf2f7;
+    background: #fff;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.ios-search input {
-    background: transparent;
+.card-machine:hover, .card-machine:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #cbd5e1;
+}
+
+.stat-card {
     border: none;
-    color: var(--ios-text-primary);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: scale(1.02);
+}
+
+/* Timeline */
+.timeline-item {
+    border-left: 2px dashed #0d6efd;
+    padding-left: 16px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0d6efd;
+}
+
+.transfer-item {
+    border-left: 2px solid #0dcaf0;
+    padding-left: 16px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.transfer-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0dcaf0;
+}
+
+.img-preview {
     width: 100%;
-    outline: none;
-    font-size: 0.95rem;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
 }
 
-.ios-search input::placeholder {
-    color: var(--ios-text-secondary);
+/* Filter buttons */
+.filter-dept-btn, .audit-item-filter {
+    white-space: nowrap;
+    border-radius: 20px;
+    font-size: 11px;
+    padding: 4px 12px;
 }
 
-/* Thẻ Card iOS */
-.ios-card {
-    background: var(--ios-card-bg);
-    border-radius: 16px;
-    border: 0.5px solid var(--ios-border);
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-/* Input & Form iOS */
-.form-label {
-    color: var(--ios-text-secondary);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-}
-
-.form-control, .form-select {
-    background-color: var(--ios-card-inner);
-    border: 1px solid var(--ios-border);
-    color: var(--ios-text-primary);
+/* Audit Items checklist */
+.audit-item-card {
     border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
     padding: 12px;
-}
-
-.form-control:focus, .form-select:focus {
-    background-color: var(--ios-card-inner);
-    color: var(--ios-text-primary);
-    border-color: var(--ios-orange);
-    box-shadow: 0 0 0 3px var(--ios-orange-glow);
-}
-
-/* Nút Bấm iOS */
-.btn-ios-primary {
-    background: var(--ios-orange);
-    color: #000;
-    font-weight: 600;
-    border-radius: 12px;
-    border: none;
-    padding: 12px;
+    margin-bottom: 10px;
     transition: all 0.2s ease;
 }
 
-.btn-ios-primary:active {
-    opacity: 0.8;
-    transform: scale(0.98);
+.audit-item-card.checked-ok {
+    border-left: 4px solid var(--success-color);
+}
+.audit-item-card.checked-relocated {
+    border-left: 4px solid var(--warning-color);
+}
+.audit-item-card.checked-missing {
+    border-left: 4px solid var(--danger-color);
+}
+.audit-item-card.checked-damaged {
+    border-left: 4px solid var(--orange-color);
 }
 
-.btn-ios-secondary {
-    background: var(--ios-card-inner);
-    color: var(--ios-orange);
-    border: 1px solid var(--ios-border);
-    border-radius: 12px;
+.audit-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
 }
 
-/* Navigation Thanh Dưới iOS */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(28, 28, 30, 0.85);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-top: 0.5px solid var(--ios-border);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0 25px 0;
-    z-index: 1000;
+/* Detail tabs styling */
+.nav-item-btn {
+    background: transparent;
+    color: #64748b;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--ios-text-secondary);
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: color 0.2s;
+.nav-item-btn.active {
+    background: #0d6efd;
+    color: #ffffff;
+    font-weight: 600;
 }
 
-.nav-item i {
-    font-size: 1.3rem;
-    margin-bottom: 3px;
-}
-
-.nav-item.active {
-    color: var(--ios-orange);
-}
-
-/* Modal Dark iOS */
-.modal-content {
-    background-color: var(--ios-card-bg);
-    border: 1px solid var(--ios-border);
-    border-radius: 20px;
-    color: var(--ios-text-primary);
-}
-
-.modal-header {
-    border-bottom: 0.5px solid var(--ios-border);
-}
-
-.btn-close {
-    filter: invert(1);
-}
-/* ==========================================
-   CẤU HÌNH IN ẤN (CHỈ IN MÃ QR)
-   ========================================== */
+/* Print styling */
 @media print {
-    /* Ẩn toàn bộ giao diện trang web */
     body * {
         visibility: hidden;
     }
-
-    /* Chỉ hiển thị khu vực Modal QR */
-    #qrModal, #qrModal * {
+    #qrcode, #qrcode * {
         visibility: visible;
     }
-
-    /* Đưa Modal QR ra giữa trang in */
-    #qrModal {
+    #qrcode {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        margin: 0;
-        padding: 0;
-        background: #fff !important;
-        color: #000 !important;
-    }
-
-    /* Ẩn các nút bấm, nút đóng modal khi in */
-    #qrModal .btn, 
-    #qrModal .btn-close, 
-    #qrModal .modal-header {
-        display: none !important;
-    }
-
-    /* Tối ưu khung thẻ QR khi lên giấy in */
-    #qrModal .modal-content {
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
-
-    #qrcode {
-        padding: 0 !important;
-        margin: 10px auto !important;
-    }
-
-    #qrUrlText {
-        color: #000 !important;
-        font-weight: bold;
-        font-size: 14px;
+        text-align: center;
     }
 }
